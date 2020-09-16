@@ -1,4 +1,4 @@
-package com.spreeexamplernapp;
+package com.fivexruby.rnapp.spreeexample;
 
 import com.facebook.react.ReactActivity;
 
