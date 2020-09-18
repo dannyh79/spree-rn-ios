@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -16,6 +16,9 @@ import {
   StatusBar,
   ImageBackground,
 } from 'react-native';
+
+import Config from 'react-native-config';
+import {makeClient} from '@spree/storefront-api-v2-sdk';
 
 import {
   LearnMoreLinks,
@@ -56,6 +59,26 @@ const headerStyles = StyleSheet.create({
 });
 
 const App = () => {
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    const client = makeClient({
+      host: Config.API_HOST,
+    });
+
+    (async () => {
+      const productIndexReq = await client.products.list({
+        include: 'default_variant',
+        page: 1,
+        sort: '-updated_at',
+      });
+
+      if (productIndexReq.isSuccess) {
+        const data = productIndexReq.success().data;
+        setProducts(data.map(({id, attributes}) => ({id, ...attributes})));
+      }
+    })();
+  }, []);
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -70,13 +93,14 @@ const App = () => {
             </View>
           )}
           <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
+            {products.map((product) => (
+              <View key={product.id} style={styles.sectionContainer}>
+                <Text style={styles.sectionTitle}>{product.name}</Text>
+                <Text style={styles.sectionDescription}>
+                  {product.description}
+                </Text>
+              </View>
+            ))}
             <View style={styles.sectionContainer}>
               <Text style={styles.sectionTitle}>See Your Changes</Text>
               <Text style={styles.sectionDescription}>
