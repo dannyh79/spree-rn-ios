@@ -1,0 +1,42 @@
+# vim:ft=ruby
+
+require 'pathname'
+
+def project_root
+  Pathname.new(
+    File.expand_path(File.join(File.expand_path(File.dirname(__FILE__)), '..'))
+  )
+end
+
+def package_json_version
+  JSON.parse(File.read(project_root.join('package.json')))['version']
+end
+
+platform :android do
+  desc 'Build the Android application.'
+  lane :build do
+    ENV['VERSION_NAME'] ||= package_json_version
+
+    UI.abort_with_message! "ENV['ANDROID_SIGNING_PASSWORD'] not set" if ENV['ANDROID_SIGNING_PASSWORD'].nil?
+
+    gradle(task: 'clean', project_dir: 'android/')
+    gradle(task: 'assemble', build_type: 'Release', project_dir: 'android/')
+    gradle(task: 'bundle', build_type: 'Release', project_dir: 'android/')
+  end
+
+  desc 'Deploy to Playstore'
+  lane :deploy do
+    UI.message "warning: ENV['VERSION_CODE'] not set" if ENV['VERSION_CODE'].nil?
+
+    google_cred_json_path = project_root.join('fastlane/google-play-service-account.json').to_s
+    UI.abort_with_message! "#{google_cred_json_path} not exists" unless File.file?(google_cred_json_path)
+
+    build
+
+    upload_to_play_store( # alias of supply
+      json_key: google_cred_json_path,
+      skip_upload_apk: true,
+      track: 'internal',
+    )
+  end
+end

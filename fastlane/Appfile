@@ -1,0 +1,5 @@
+# vim:ft=ruby
+# doc: https://docs.fastlane.tools/advanced/Appfile/
+
+# android package name
+package_name 'com.fivexruby.rnapp.spreeexample'
