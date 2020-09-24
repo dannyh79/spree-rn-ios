@@ -3,3 +3,6 @@
 
 # android package name
 package_name 'com.fivexruby.rnapp.spreeexample'
+
+# ios app bundle id
+app_identifier 'com.fivexruby.rnapp.SpreeExample'
