@@ -118,3 +118,11 @@ yarn android
 #### iOS
 
 open `ios/SpreeExampleRNApp.xcworkspace`, choose device/emulator to run and press play button
+
+## Release build and deployment (upload)
+
+This is done by [Fastlane](https://fastlane.tools/), please see `fastlane/README.md` and `fastlane/Fastfile`
+
+* Our `fastlane` is installed by bundler, there is no need to `gem install fastlane`, and execute fastlane by `bundle exec fastlane ...`
+* For deployment (uploading) credentials, please see: https://git.5xruby.com/spree-example/spree-example-rnapp/-/wikis/creds#for-app-deployment
+* You will probably need to access Google play console / App store connect to manage release or beta testing, ask project manager for the access
