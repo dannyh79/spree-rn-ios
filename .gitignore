@@ -51,6 +51,7 @@ buck-out/
 /fastlane/Preview.html
 /fastlane/screenshots
 /fastlane/google-play-service-account.json
+/fastlane/app-connect-apikey.json
 
 # Bundle artifact
 *.jsbundle

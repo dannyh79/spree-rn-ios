@@ -59,6 +59,23 @@ platform :ios do
       delete_keychain(name: "#{keychain_name}.keychain-db")
     end
   end
+
+  desc 'Deploy to Testflight.'
+  lane :deploy do
+    UI.message "warning: ENV['VERSION_CODE'] not set" if ENV['VERSION_CODE'].nil?
+
+    app_connect_apikey_path = project_root.join('fastlane/app-connect-apikey.json').to_s
+    UI.abort_with_message! "#{app_connect_apikey_path} not exists" unless File.file?(app_connect_apikey_path)
+
+    set_version
+
+    build
+
+    upload_to_testflight( # same as pilot
+      api_key_path: app_connect_apikey_path,
+      skip_waiting_for_build_processing: true, # prevent a fastlane bug related to developer-only apiKey
+    )
+  end
 end
 
 platform :android do

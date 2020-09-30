@@ -26,6 +26,11 @@ Set app version.
 fastlane ios build
 ```
 Build the iOS application.
+### ios deploy
+```
+fastlane ios deploy
+```
+Deploy to Testflight.
 
 ----
 
