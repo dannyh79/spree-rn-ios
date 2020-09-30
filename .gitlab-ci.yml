@@ -1,0 +1,25 @@
+image: registry.5xruby.com/docker/rn-android-sdk:28.0.3
+# https://git.5xruby.com/docker/rn-android-sdk/-/blob/28.0.3/Dockerfile
+# ruby: 2.7.1
+# node: 14.2.0
+
+stages:
+  - lint_test
+
+lint:
+  stage: lint_test
+  cache:
+    paths:
+      - node_modules
+  script:
+    - yarn install
+    - yarn lint
+
+test:
+  stage: lint_test
+  cache:
+    paths:
+      - node_modules
+  script:
+    - yarn install
+    - yarn test
