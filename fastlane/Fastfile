@@ -1,0 +1,108 @@
+# vim:ft=ruby
+
+require 'pathname'
+require 'securerandom'
+
+def project_root
+  Pathname.new(
+    File.expand_path(File.join(File.expand_path(File.dirname(__FILE__)), '..'))
+  )
+end
+
+def package_json_version
+  JSON.parse(File.read(project_root.join('package.json')))['version']
+end
+
+platform :ios do
+  desc 'Set app version.'
+  lane :set_version do
+    increment_build_number(
+      xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
+      build_number: ENV['VERSION_CODE']
+    ) unless ENV['VERSION_CODE'].nil?
+    increment_version_number(
+      xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
+      version_number: package_json_version
+    )
+  end
+
+  desc 'Build the iOS application.'
+  lane :build do
+    keychain_name = "fastlane-tmp-#{(Time.now.to_f * 1000).to_i}"
+    keychain_passwd = SecureRandom.hex
+
+    begin
+      create_keychain(
+        name: "#{keychain_name}.keychain-db",
+        password: keychain_passwd,
+        timeout: false,
+        require_create: true,
+      )
+      unlock_keychain(
+        path: File.expand_path("~/Library/Keychains/#{keychain_name}.keychain-db"),
+        password: keychain_passwd,
+        add_to_search_list: true,
+      )
+      sync_code_signing( # same as match
+        readonly: true,
+        keychain_name: "#{keychain_name}.keychain-db",
+        keychain_password: keychain_passwd,
+        type: 'appstore',
+      )
+
+      ENV['RCT_NO_LAUNCH_PACKAGER'] = 'true'
+      build_ios_app( # same as gym
+        scheme: 'SpreeExampleRNApp',
+        workspace: './ios/SpreeExampleRNApp.xcworkspace',
+      )
+    ensure
+      delete_keychain(name: "#{keychain_name}.keychain-db")
+    end
+  end
+
+  desc 'Deploy to Testflight.'
+  lane :deploy do
+    UI.message "warning: ENV['VERSION_CODE'] not set" if ENV['VERSION_CODE'].nil?
+
+    app_connect_apikey_path = project_root.join('fastlane/app-connect-apikey.json').to_s
+    UI.abort_with_message! "#{app_connect_apikey_path} not exists" unless File.file?(app_connect_apikey_path)
+
+    set_version
+
+    build
+
+    upload_to_testflight( # same as pilot
+      api_key_path: app_connect_apikey_path,
+      skip_waiting_for_build_processing: true, # prevent a fastlane bug related to developer-only apiKey
+    )
+  end
+end
+
+platform :android do
+  desc 'Build the Android application.'
+  lane :build do
+    ENV['VERSION_NAME'] ||= package_json_version
+
+    UI.abort_with_message! "ENV['ANDROID_SIGNING_PASSWORD'] not set" if ENV['ANDROID_SIGNING_PASSWORD'].nil?
+
+    gradle(task: 'clean', project_dir: 'android/')
+    gradle(task: 'assemble', build_type: 'Release', project_dir: 'android/')
+    gradle(task: 'bundle', build_type: 'Release', project_dir: 'android/')
+  end
+
+  desc 'Deploy to Playstore'
+  lane :deploy do
+    UI.message "warning: ENV['VERSION_CODE'] not set" if ENV['VERSION_CODE'].nil?
+
+    google_cred_json_path = project_root.join('fastlane/google-play-service-account.json').to_s
+    UI.abort_with_message! "#{google_cred_json_path} not exists" unless File.file?(google_cred_json_path)
+
+    build
+
+    upload_to_play_store( # alias of supply
+      json_key: google_cred_json_path,
+      skip_upload_apk: true,
+      track: 'internal',
+    )
+  end
+end
