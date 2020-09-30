@@ -21,6 +21,11 @@ or alternatively using `brew install fastlane`
 fastlane ios set_version
 ```
 Set app version.
+### ios build
+```
+fastlane ios build
+```
+Build the iOS application.
 
 ----
 

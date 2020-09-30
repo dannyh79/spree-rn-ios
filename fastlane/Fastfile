@@ -1,6 +1,7 @@
 # vim:ft=ruby
 
 require 'pathname'
+require 'securerandom'
 
 def project_root
   Pathname.new(
@@ -23,6 +24,40 @@ platform :ios do
       xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
       version_number: package_json_version
     )
+  end
+
+  desc 'Build the iOS application.'
+  lane :build do
+    keychain_name = "fastlane-tmp-#{(Time.now.to_f * 1000).to_i}"
+    keychain_passwd = SecureRandom.hex
+
+    begin
+      create_keychain(
+        name: "#{keychain_name}.keychain-db",
+        password: keychain_passwd,
+        timeout: false,
+        require_create: true,
+      )
+      unlock_keychain(
+        path: File.expand_path("~/Library/Keychains/#{keychain_name}.keychain-db"),
+        password: keychain_passwd,
+        add_to_search_list: true,
+      )
+      sync_code_signing( # same as match
+        readonly: true,
+        keychain_name: "#{keychain_name}.keychain-db",
+        keychain_password: keychain_passwd,
+        type: 'appstore',
+      )
+
+      ENV['RCT_NO_LAUNCH_PACKAGER'] = 'true'
+      build_ios_app( # same as gym
+        scheme: 'SpreeExampleRNApp',
+        workspace: './ios/SpreeExampleRNApp.xcworkspace',
+      )
+    ensure
+      delete_keychain(name: "#{keychain_name}.keychain-db")
+    end
   end
 end
 
