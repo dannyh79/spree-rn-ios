@@ -12,6 +12,20 @@ def package_json_version
   JSON.parse(File.read(project_root.join('package.json')))['version']
 end
 
+platform :ios do
+  desc 'Set app version.'
+  lane :set_version do
+    increment_build_number(
+      xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
+      build_number: ENV['VERSION_CODE']
+    ) unless ENV['VERSION_CODE'].nil?
+    increment_version_number(
+      xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
+      version_number: package_json_version
+    )
+  end
+end
+
 platform :android do
   desc 'Build the Android application.'
   lane :build do

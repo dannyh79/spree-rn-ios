@@ -15,6 +15,15 @@ Install _fastlane_ using
 or alternatively using `brew install fastlane`
 
 # Available Actions
+## iOS
+### ios set_version
+```
+fastlane ios set_version
+```
+Set app version.
+
+----
+
 ## Android
 ### android build
 ```
