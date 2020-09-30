@@ -4,15 +4,18 @@
 
 ### System requirements
 
-* nodejs
+* nodejs `14.2.0`
   * yarn: `npm install -g yarn`
-* ruby
+* ruby `2.7.1`
   * bundler: `gem install bundler`
+
+> this repo contains `.ruby-version` for [rbenv](https://github.com/rbenv/rbenv), `.node-version` for [nodenv](https://github.com/nodenv/nodenv) and `.tool-versions` for [asdf-vm](https://asdf-vm.com/)
 
 #### Android
 
-* openjdk11
+* openjdk (2020/01: working openjdk version: `11`
   * homebrew: https://formulae.brew.sh/formula/openjdk@11
+  * archlinux: https://www.archlinux.org/packages/extra/x86_64/jdk11-openjdk/
 * [Android Studio](https://developer.android.com/studio)
   * environment variable `ANDROID_HOME` need to be set
   * https://reactnative.dev/docs/environment-setup
@@ -20,12 +23,13 @@
 #### iOS (macOS only)
 
 * XCode, install via mac Appstore
+ * After installing XCode, launch XCode to install components and run `sudo xcode-select --switch /Applications/Xcode.app`
 
 ### Get code
 
 ```bash
-git clone this_repo
-cd this_repo
+git clone git@git.5xruby.com:spree-example/spree-example-rnapp.git
+cd spree-example-rnapp
 ```
 
 ### Install dependencies
@@ -42,6 +46,8 @@ cd ios/
 bundle exec pod install
 cd ../
 ```
+
+> you will need to re-run this after changing to node dependencies
 
 ### Start dev server
 
@@ -109,7 +115,7 @@ export ANDROID_SIGNING_PASSWORD=...
 
 #### Android
 
-connect to android device with adb debugging, use `adb devices -l` to verify
+connect to android device with adb debugging or emulator, use `adb devices -l` to verify, then:
 
 ```
 yarn android
@@ -123,6 +129,6 @@ open `ios/SpreeExampleRNApp.xcworkspace`, choose device/emulator to run and pres
 
 This is done by [Fastlane](https://fastlane.tools/), please see `fastlane/README.md` and `fastlane/Fastfile`
 
-* Our `fastlane` is installed by bundler, there is no need to `gem install fastlane`, and execute fastlane by `bundle exec fastlane ...`
+* Our `fastlane` is installed by bundler, please execute fastlane by `bundle exec fastlane ...`, and there is no need to `gem install fastlane`
 * For deployment (uploading) credentials, please see: https://git.5xruby.com/spree-example/spree-example-rnapp/-/wikis/creds#for-app-deployment
 * You will probably need to access Google play console / App store connect to manage release or beta testing, ask project manager for the access
