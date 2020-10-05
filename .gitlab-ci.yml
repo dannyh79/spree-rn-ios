@@ -11,6 +11,12 @@ variables:
   #   password of keystore and key (android/app/release.keystore) to sign android app
   # GOOGLE_PLAY_SERVICE_ACCOUNT_JSON
   #   API key JSON to access google play console to upload_to_play_store
+  # MATCH_CERT_REPO_DEPLOY_KEY
+  #   private ssh deploy key of iOS cert repo (git@git.5xruby.com:spree-example/spree-example-ios-cert.git)
+  # MATCH_PASSWORD
+  #   encryption key of iOS cert repo (git@git.5xruby.com:spree-example/spree-example-ios-cert.git)
+  # APP_CONNECT_APIKEY_JSON
+  #   API key JSON to access app connect to upload_to_testflight
 
 .deploy_branches: &deploy_branches
   - master
@@ -51,6 +57,31 @@ test:
     paths:
       - android/app/build/outputs/apk
 
+.ios_build_base: &ios_build_base
+  tags: [xcode]
+  cache:
+    paths:
+      - node_modules
+      - vendor/ruby
+      - ios/Pods
+  before_script:
+    # make sure
+    #   XCode is ready
+    #   correct version of node is installed using nodenv
+    #   correct version of ruby is installed using rbenv
+    #   yarn, bundler is installed
+    #   git.5xruby.com is in ~/.ssh/known_hosts
+    - eval "$(ssh-agent -s)"
+    - ssh-add - <<< "$MATCH_CERT_REPO_DEPLOY_KEY"
+    - bundle install --path vendor
+    - yarn install
+    - bash -c "cd ios && bundle exec pod install"
+    - export VERSION_CODE=$CI_PIPELINE_IID
+  artifacts:
+    paths:
+      - "*.ipa"
+      - "*.app.dSYM.zip"
+
 android_build:
   <<: *android_build_base
   stage: build
@@ -66,4 +97,21 @@ android_build_deploy:
     - cp .env.sample .env
     - echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > fastlane/google-play-service-account.json
     - bundle exec fastlane android deploy
+  only: *deploy_branches
+
+ios_build:
+  <<: *ios_build_base
+  stage: build
+  script:
+    - cp .env.sample .env
+    - bundle exec fastlane ios build
+  except: *deploy_branches
+
+ios_build_deploy:
+  <<: *ios_build_base
+  stage: build_deploy
+  script:
+    - cp .env.sample .env
+    - echo "$APP_CONNECT_APIKEY_JSON" > fastlane/app-connect-apikey.json
+    - bundle exec fastlane ios deploy
   only: *deploy_branches
