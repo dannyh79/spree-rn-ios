@@ -3,8 +3,22 @@ image: registry.5xruby.com/docker/rn-android-sdk:28.0.3
 # ruby: 2.7.1
 # node: 14.2.0
 
+variables:
+  LC_ALL: en_US.UTF-8
+  LANG: en_US.UTF-8
+  # protected variables:
+  # ANDROID_SIGNING_PASSWORD
+  #   password of keystore and key (android/app/release.keystore) to sign android app
+  # GOOGLE_PLAY_SERVICE_ACCOUNT_JSON
+  #   API key JSON to access google play console to upload_to_play_store
+
+.deploy_branches: &deploy_branches
+  - master
+
 stages:
   - lint_test
+  - build
+  - build_deploy
 
 lint:
   stage: lint_test
@@ -23,3 +37,33 @@ test:
   script:
     - yarn install
     - yarn test
+
+.android_build_base: &android_build_base
+  cache:
+    paths:
+      - node_modules
+      - vendor/ruby
+  before_script:
+    - bundle install --path vendor
+    - yarn install
+    - export VERSION_CODE=$CI_PIPELINE_IID
+  artifacts:
+    paths:
+      - android/app/build/outputs/apk
+
+android_build:
+  <<: *android_build_base
+  stage: build
+  script:
+    - cp .env.sample .env
+    - bundle exec fastlane android build
+  except: *deploy_branches
+
+android_build_deploy:
+  <<: *android_build_base
+  stage: build_deploy
+  script:
+    - cp .env.sample .env
+    - echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > fastlane/google-play-service-account.json
+    - bundle exec fastlane android deploy
+  only: *deploy_branches
