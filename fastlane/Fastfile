@@ -54,6 +54,10 @@ platform :ios do
       build_ios_app( # same as gym
         scheme: 'SpreeExampleRNApp',
         workspace: './ios/SpreeExampleRNApp.xcworkspace',
+        **(ENV['BUILD_IOS_APP_LOG'] ? { # prevent CI log too long
+          suppress_xcode_output: true,
+          buildlog_path: project_root.join(ENV['BUILD_IOS_APP_LOG']).to_s,
+        } : {})
       )
     ensure
       delete_keychain(name: "#{keychain_name}.keychain-db")

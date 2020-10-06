@@ -64,6 +64,8 @@ test:
       - node_modules
       - vendor/ruby
       - ios/Pods
+  variables:
+    BUILD_IOS_APP_LOG: build.log
   before_script:
     # make sure
     #   XCode is ready
@@ -78,9 +80,11 @@ test:
     - bash -c "cd ios && bundle exec pod install"
     - export VERSION_CODE=$CI_PIPELINE_IID
   artifacts:
+    when: always
     paths:
       - "*.ipa"
       - "*.app.dSYM.zip"
+      - build.log
 
 android_build:
   <<: *android_build_base
