@@ -90,7 +90,7 @@ android_build:
   <<: *android_build_base
   stage: build
   script:
-    - cp .env.sample .env
+    - cp .env.staging .env
     - bundle exec fastlane android build
   except: *deploy_branches
 
@@ -98,7 +98,7 @@ android_build_deploy:
   <<: *android_build_base
   stage: build_deploy
   script:
-    - cp .env.sample .env
+    - cp .env.staging .env
     - echo "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON" > fastlane/google-play-service-account.json
     - bundle exec fastlane android deploy
   only: *deploy_branches
@@ -107,7 +107,7 @@ ios_build:
   <<: *ios_build_base
   stage: build
   script:
-    - cp .env.sample .env
+    - cp .env.staging .env
     - bundle exec fastlane ios build
   except: *deploy_branches
 
@@ -115,7 +115,7 @@ ios_build_deploy:
   <<: *ios_build_base
   stage: build_deploy
   script:
-    - cp .env.sample .env
+    - cp .env.staging .env
     - echo "$APP_CONNECT_APIKEY_JSON" > fastlane/app-connect-apikey.json
     - bundle exec fastlane ios deploy
   only: *deploy_branches
