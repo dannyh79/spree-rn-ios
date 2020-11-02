@@ -18,16 +18,18 @@ platform :ios do
   lane :set_version do
     increment_build_number(
       xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
-      build_number: ENV['VERSION_CODE']
+      build_number: ENV['VERSION_CODE'],
     ) unless ENV['VERSION_CODE'].nil?
     increment_version_number(
       xcodeproj: './ios/SpreeExampleRNApp.xcodeproj',
-      version_number: package_json_version
+      version_number: package_json_version,
     )
   end
 
   desc 'Build the iOS application.'
-  lane :build do
+  lane :build do |options|
+    set_version
+
     keychain_name = "fastlane-tmp-#{(Time.now.to_f * 1000).to_i}"
     keychain_passwd = SecureRandom.hex
 
@@ -47,7 +49,7 @@ platform :ios do
         readonly: true,
         keychain_name: "#{keychain_name}.keychain-db",
         keychain_password: keychain_passwd,
-        type: 'appstore',
+        type: options[:appstore] ? 'appstore' : 'development',
       )
 
       ENV['RCT_NO_LAUNCH_PACKAGER'] = 'true'
@@ -55,6 +57,10 @@ platform :ios do
         scheme: 'SpreeExampleRNApp',
         workspace: './ios/SpreeExampleRNApp.xcworkspace',
         clean: true,
+        **(options[:appstore] ? {} : {
+          configuration: 'Debug',
+          export_options: { method: "development" },
+        }),
         **(ENV['BUILD_IOS_APP_LOG'] ? { # prevent CI log too long
           suppress_xcode_output: true,
           buildlog_path: project_root.join(ENV['BUILD_IOS_APP_LOG']).to_s,
@@ -72,9 +78,7 @@ platform :ios do
     app_connect_apikey_path = project_root.join('fastlane/app-connect-apikey.json').to_s
     UI.abort_with_message! "#{app_connect_apikey_path} not exists" unless File.file?(app_connect_apikey_path)
 
-    set_version
-
-    build
+    build(appstore: true)
 
     upload_to_testflight( # same as pilot
       api_key_path: app_connect_apikey_path,
