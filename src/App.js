@@ -30,7 +30,7 @@ import {
 const Header = () => (
   <ImageBackground
     accessibilityRole={'image'}
-    source={require('./assets/logo.jpg')}
+    source={require('../assets/logo.jpg')}
     style={headerStyles.background}
     imageStyle={headerStyles.logo}>
     <Text style={headerStyles.text}>SpreeExample</Text>
