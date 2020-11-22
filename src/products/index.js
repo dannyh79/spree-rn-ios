@@ -1,4 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,15 +11,9 @@ import {
   ImageBackground,
 } from 'react-native';
 
-import Config from 'react-native-config';
-import {makeClient} from '@spree/storefront-api-v2-sdk';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-import {
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {productsIndex} from './redux';
 
 const Header = () => (
   <ImageBackground
@@ -51,25 +47,11 @@ const headerStyles = StyleSheet.create({
 });
 
 const Products = () => {
-  const [products, setProducts] = useState([]);
+  const products = useSelector((state) => state.products.products);
+  const dispatch = useDispatch();
   useEffect(() => {
-    const client = makeClient({
-      host: Config.API_HOST,
-    });
-
-    (async () => {
-      const productIndexReq = await client.products.list({
-        include: 'default_variant',
-        page: 1,
-        sort: '-updated_at',
-      });
-
-      if (productIndexReq.isSuccess) {
-        const data = productIndexReq.success().data;
-        setProducts(data.map(({id, attributes}) => ({id, ...attributes})));
-      }
-    })();
-  }, []);
+    dispatch(productsIndex());
+  }, [dispatch]);
 
   return (
     <>
@@ -79,11 +61,6 @@ const Products = () => {
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}>
           <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
           <View style={styles.body}>
             {products.map((product) => (
               <View key={product.id} style={styles.sectionContainer}>
@@ -93,25 +70,6 @@ const Products = () => {
                 </Text>
               </View>
             ))}
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -122,10 +80,6 @@ const Products = () => {
 const styles = StyleSheet.create({
   scrollView: {
     backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
   },
   body: {
     backgroundColor: Colors.white,
@@ -147,14 +101,6 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
   },
 });
 

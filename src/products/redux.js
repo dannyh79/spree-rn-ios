@@ -1,3 +1,5 @@
+import {productIndexReq} from '../spree/api';
+
 const INDEX = 'products/INDEX';
 
 const initState = {
@@ -9,7 +11,7 @@ const reducer = (state = initState, action) => {
     case INDEX: {
       return {
         ...state,
-        products: state.products,
+        products: action.payload,
       };
     }
     default:
@@ -19,4 +21,14 @@ const reducer = (state = initState, action) => {
 
 export default reducer;
 
-export const index = () => ({type: INDEX});
+export const index = (payload) => ({
+  type: INDEX,
+  payload,
+});
+
+export const productsIndex = () => {
+  return async (dispatch, _getState) => {
+    const products = await productIndexReq();
+    dispatch(index(products));
+  };
+};
