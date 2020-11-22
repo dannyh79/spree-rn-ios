@@ -17,6 +17,9 @@ import {
   ImageBackground,
 } from 'react-native';
 
+import {Provider} from 'react-redux';
+import store from './reduxStore';
+
 import Config from 'react-native-config';
 import {makeClient} from '@spree/storefront-api-v2-sdk';
 
@@ -80,7 +83,7 @@ const App = () => {
   }, []);
 
   return (
-    <>
+    <Provider store={store}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <ScrollView
@@ -123,7 +126,7 @@ const App = () => {
           </View>
         </ScrollView>
       </SafeAreaView>
-    </>
+    </Provider>
   );
 };
 
