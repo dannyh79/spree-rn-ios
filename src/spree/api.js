@@ -20,3 +20,14 @@ export const productIndexReq = async () => {
 
   return products;
 };
+
+export const userLogInReq = async ({username, password}) => {
+  const response = await client.authentication.getToken({
+    username: username,
+    password: password,
+  });
+
+  const bearerToken = response.success().access_token;
+
+  return bearerToken;
+};

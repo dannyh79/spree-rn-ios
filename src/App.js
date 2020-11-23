@@ -12,11 +12,13 @@ import {Provider} from 'react-redux';
 import store from './reduxStore';
 
 import ProductsView from './products';
+import UserView from './user';
 
 const App = () => {
   return (
     <Provider store={store}>
       <ProductsView />
+      <UserView />
     </Provider>
   );
 };
