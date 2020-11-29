@@ -31,3 +31,18 @@ export const userLogInReq = async ({username, password}) => {
 
   return bearerToken;
 };
+
+const orderFormater = (order) => {
+  const attrs = order.attributes;
+  return {
+    number: attrs.number,
+    completedAt: new Date(attrs.completed_at).toLocaleDateString(),
+    status: attrs.state,
+    displayTotal: attrs.display_total,
+  };
+};
+
+export const completedOrdersListReq = async (bearerToken) => {
+  const response = await client.account.completedOrdersList({bearerToken});
+  return response.success().data.map((order) => orderFormater(order));
+};

@@ -31,6 +31,8 @@ const Navigation = () => {
   const baseProps = {route: route, navigation: navigation};
   const productProps = {...baseProps, name: 'Products'};
   const logInProps = {...baseProps, name: 'Log In'};
+  const ordersProps = {...baseProps, name: 'Orders'};
+
   const handleLogOut = useCallback(() => {
     Alert.alert('Log out Successfully!');
     dispatch(logOut());
@@ -40,6 +42,7 @@ const Navigation = () => {
   return (
     <View style={styles.navigation}>
       <NavButton {...productProps} />
+      {loggedIn && <NavButton {...ordersProps} />}
       {renderLogButtons({
         loggedIn,
         logInButton: <NavButton {...logInProps} />,

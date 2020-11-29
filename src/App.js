@@ -16,6 +16,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import ProductsView from './products';
 import UserView from './user';
+import OrdersView from './orders';
 
 const Stack = createStackNavigator();
 
@@ -26,6 +27,7 @@ const App = () => {
         <Stack.Navigator>
           <Stack.Screen name="Products" component={ProductsView} />
           <Stack.Screen name="Log In" component={UserView} />
+          <Stack.Screen name="Orders" component={OrdersView} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
