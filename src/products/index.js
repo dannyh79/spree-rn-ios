@@ -10,6 +10,7 @@ import {
   Text,
 } from 'react-native';
 
+import Navigation from '../components/Navigation';
 import {productsIndex} from './redux';
 
 const Products = () => {
@@ -23,6 +24,7 @@ const Products = () => {
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
+        <Navigation />
         <ScrollView contentInsetAdjustmentBehavior="automatic">
           <View style={styles.body}>
             {products.map((product) => (

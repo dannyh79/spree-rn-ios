@@ -11,6 +11,7 @@ import {
   Alert,
 } from 'react-native';
 
+import Navigation from '../components/Navigation';
 import {userLogIn} from './redux';
 
 const Users = () => {
@@ -21,6 +22,7 @@ const Users = () => {
 
   return (
     <SafeAreaView>
+      <Navigation />
       <View contentInsetAdjustmentBehavior="automatic">
         <View style={styles.wrap}>
           <Text style={styles.label}>Username:</Text>
