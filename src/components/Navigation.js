@@ -14,18 +14,39 @@ const NavButton = ({name, route, navigation}) => {
   return <Button title={name} onPress={() => navigation.navigate(name)} />;
 };
 
+const renderLogButtons = ({loggedIn, logInButton, logOutButton}) => {
+  if (loggedIn) {
+    return logOutButton;
+  } else {
+    return logInButton;
+  }
+};
+
 const Navigation = () => {
   const route = useRoute();
   const navigation = useNavigation();
+  const loggedIn = useSelector((state) => state.user.loggedIn);
+  const dispatch = useDispatch();
 
   const baseProps = {route: route, navigation: navigation};
   const productProps = {...baseProps, name: 'Products'};
   const logInProps = {...baseProps, name: 'Log In'};
+  const handleLogOut = useCallback(() => {
+    Alert.alert('Log out Successfully!');
+    dispatch(logOut());
+    navigation.navigate('Log In');
+  }, [dispatch, navigation]);
 
   return (
     <View style={styles.navigation}>
       <NavButton {...productProps} />
-      <NavButton {...logInProps} />
+      {renderLogButtons({
+        loggedIn,
+        logInButton: <NavButton {...logInProps} />,
+        logOutButton: (
+          <Button title={'Log Out'} onPress={() => handleLogOut()} />
+        ),
+      })}
     </View>
   );
 };
