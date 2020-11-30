@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {useDispatch} from 'react-redux';
+import React, {useState, useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 
 import {
   SafeAreaView,
@@ -8,17 +8,25 @@ import {
   Text,
   TextInput,
   Button,
-  Alert,
 } from 'react-native';
+
+import {useNavigation} from '@react-navigation/native';
 
 import Navigation from '../components/Navigation';
 import {userLogIn} from './redux';
 
 const Users = () => {
+  const loggedIn = useSelector((state) => state.user.loggedIn);
   const dispatch = useDispatch();
+  const navigation = useNavigation();
+  useEffect(() => {
+    if (loggedIn) {
+      navigation.navigate('Products');
+    }
+  }, [navigation, loggedIn]);
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  // TODO: redirect to products page if logged in
 
   return (
     <SafeAreaView>
@@ -49,7 +57,9 @@ const Users = () => {
             title={'Submit'}
             onPress={() => {
               dispatch(userLogIn({username, password}));
-              Alert.alert('Button pressed');
+              if (loggedIn) {
+                navigation.navigate('Products');
+              }
             }}
           />
         </View>
